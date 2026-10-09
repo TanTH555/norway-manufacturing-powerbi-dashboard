@@ -1,0 +1,30 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["Dim_Calendar","Dim_Product","Dim_Line","Dim_Machine","Dim_Shift","Fact_Production","Fact_Downtime","Fact_Quality","Fact_Cost","_Measures","FilePath"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Dim_Calendar
+ref table Dim_Product
+ref table Dim_Line
+ref table Dim_Machine
+ref table Dim_Shift
+ref table Fact_Production
+ref table Fact_Downtime
+ref table Fact_Quality
+ref table Fact_Cost
+ref table _Measures
+ref table DateTableTemplate_30eb0418-8c13-4afc-85b1-e5ea28828a54
+ref table LocalDateTable_4d0e342f-6e29-45aa-b89f-3ffd04123fa0
+
+ref cultureInfo en-US
+

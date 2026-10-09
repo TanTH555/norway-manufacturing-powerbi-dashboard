@@ -1,0 +1,79 @@
+table Dim_Product
+	lineageTag: 6cd1eb0b-e78d-5781-a0cd-ce75ae7a15da
+
+	column ProductID
+		dataType: string
+		isHidden
+		lineageTag: e1af1edf-e29a-5dcf-afc2-ca1890d77bd4
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductName
+		dataType: string
+		lineageTag: 4e144773-193a-5366-9ec4-44ebd9c69dc0
+		summarizeBy: none
+		sourceColumn: ProductName
+
+		annotation SummarizationSetBy = Automatic
+
+	column IndustryGroup
+		dataType: string
+		lineageTag: 86767612-6c81-531f-8b33-f5335da30080
+		summarizeBy: none
+		sourceColumn: IndustryGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesPriceNOK
+		dataType: double
+		formatString: #,0
+		lineageTag: 2f8cd50e-3ebb-53fd-af95-39fb09526988
+		summarizeBy: none
+		sourceColumn: SalesPriceNOK
+
+		annotation SummarizationSetBy = Automatic
+
+	column StandardCostNOK
+		dataType: double
+		formatString: #,0
+		lineageTag: 5dc225e2-33af-54b6-af02-f2bc194a276b
+		summarizeBy: none
+		sourceColumn: StandardCostNOK
+
+		annotation SummarizationSetBy = Automatic
+
+	column TargetScrapRate
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 9f6f49fd-f599-581a-8552-7319885af590
+		summarizeBy: none
+		sourceColumn: TargetScrapRate
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitMarginNOK
+		dataType: double
+		formatString: #,0
+		lineageTag: 4aaa85f7-84ef-5407-b95b-f0544f0f55a0
+		summarizeBy: none
+		sourceColumn: UnitMarginNOK
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Product = m
+		mode: import
+		source =
+				let
+					Source = Csv.Document(Binary.Decompress(Binary.FromText(Text.Combine({
+							"ZZDLTsNADEX3/Yr5AAvNBJKmS0hbWqGWiKDunZmhjZg8cDxI+XscskFiZ0vnXF+5pN5Fy8ctlMt0xtbDsXNxZJqeqY8DVBj8WFJj/fn1BSrGziG5oh953t+Rrp4rSzi8IftVabSGw+QIY2isOvRxbLor7LGWBAGcOnnGACZJNWwSDfpOm1w0o6GM7aCeCO2n5//GOteQml8hSUQQd0vNt1fVDT8YTmhvTedpApNJtDH5kp0Keq/hgkHQx3H0bR2mP/RGuGyzxAr6oKHoO6Y+qAJrQVjtaX7KLnjLc6Ogdl+xGVrfsVyRFutssdPVDw=="
+						}), BinaryEncoding.Base64), Compression.Deflate), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					#"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					#"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers", {{"ProductID", type text},{"ProductName", type text},{"IndustryGroup", type text},{"SalesPriceNOK", type number},{"StandardCostNOK", type number},{"TargetScrapRate", type number}}, "en-US"),
+					#"Added UnitMarginNOK" = Table.AddColumn(#"Changed Type","UnitMarginNOK", each [SalesPriceNOK] - [StandardCostNOK], type number)
+				in
+					#"Added UnitMarginNOK"
+
+	annotation PBI_ResultType = Table
+

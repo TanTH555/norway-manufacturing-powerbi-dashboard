@@ -1,0 +1,77 @@
+relationship 5e9c2668-7700-5db3-8337-8ce21fb2db42
+	fromColumn: Fact_Production.Date
+	toColumn: Dim_Calendar.Date
+
+relationship e363a4ed-7626-564f-81e7-bd8280fce119
+	fromColumn: Fact_Production.LineID
+	toColumn: Dim_Line.LineID
+
+relationship 07043fed-4d82-53b8-a77a-f20852dcc6a7
+	fromColumn: Fact_Production.MachineID
+	toColumn: Dim_Machine.MachineID
+
+relationship d43da544-c538-5ba5-908a-0bf7ef1daa1a
+	fromColumn: Fact_Downtime.Date
+	toColumn: Dim_Calendar.Date
+
+relationship 91a1741b-48bc-58e6-9b6e-dfb3287a1d1b
+	fromColumn: Fact_Downtime.LineID
+	toColumn: Dim_Line.LineID
+
+relationship 8ef58b54-8e81-5e20-b167-0160d7018dba
+	fromColumn: Fact_Downtime.MachineID
+	toColumn: Dim_Machine.MachineID
+
+relationship 8d88164c-b34b-56b6-876d-32a03737340d
+	fromColumn: Fact_Quality.Date
+	toColumn: Dim_Calendar.Date
+
+relationship 512d5cd7-9de0-5015-982a-3de1edda73d3
+	fromColumn: Fact_Quality.LineID
+	toColumn: Dim_Line.LineID
+
+relationship d803612a-0305-5d5d-88aa-d367461b64f4
+	fromColumn: Fact_Quality.MachineID
+	toColumn: Dim_Machine.MachineID
+
+relationship 020a5a41-19d6-5f8e-ba76-7e56597ae9a3
+	fromColumn: Fact_Cost.Date
+	toColumn: Dim_Calendar.Date
+
+relationship 466ac22b-731a-5128-8e86-3386c47e4c13
+	fromColumn: Fact_Cost.LineID
+	toColumn: Dim_Line.LineID
+
+relationship 244675db-d648-5f27-bc7e-833162613862
+	fromColumn: Fact_Cost.MachineID
+	toColumn: Dim_Machine.MachineID
+
+relationship 19468600-c286-54f0-a505-05e0ad8d84de
+	fromColumn: Fact_Production.ShiftID
+	toColumn: Dim_Shift.ShiftID
+
+relationship 46515bcf-1538-5c21-a000-7c1a99731850
+	fromColumn: Fact_Downtime.ShiftID
+	toColumn: Dim_Shift.ShiftID
+
+relationship 4d84b457-8b08-5c4d-9958-8df9ef3929a0
+	fromColumn: Fact_Quality.ShiftID
+	toColumn: Dim_Shift.ShiftID
+
+relationship ba0b2d66-ad23-5677-9eaa-ca7e958b0c95
+	fromColumn: Fact_Production.ProductID
+	toColumn: Dim_Product.ProductID
+
+relationship 7dfbf242-177a-5bf5-a60e-f59d1f264aa0
+	fromColumn: Fact_Quality.ProductID
+	toColumn: Dim_Product.ProductID
+
+relationship 70f55e30-8c2f-5802-a624-a3cbb76ce0d6
+	fromColumn: Fact_Cost.ProductID
+	toColumn: Dim_Product.ProductID
+
+relationship 97949f2d-0f04-4ee4-bb57-c4a008f28014
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Dim_Machine.InstallDate
+	toColumn: LocalDateTable_4d0e342f-6e29-45aa-b89f-3ffd04123fa0.Date
+

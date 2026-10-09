@@ -1,0 +1,5 @@
+expression FilePath = "C:\PowerBI\Norwegian_Manufacturing_PowerBI_Dataset_2026.xlsx" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 6b1af103-189e-5a63-b25a-11cce971da00
+
+	annotation PBI_ResultType = Text
+

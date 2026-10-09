@@ -1,0 +1,115 @@
+table Dim_Calendar
+	lineageTag: 90ebf806-1148-5689-aaa2-ea20d7681f54
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: dd.MM.yyyy
+		lineageTag: a4674b5d-14e5-572c-8f4a-b9d939878d0e
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		lineageTag: acde58e4-7a85-5fae-b0e5-87732cf79759
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNo
+		dataType: int64
+		isHidden
+		lineageTag: 33b3df07-7c70-5fd2-91d5-0cdf7fabcdb6
+		summarizeBy: none
+		sourceColumn: MonthNo
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: string
+		lineageTag: 12c497bf-4f25-5853-9834-4020d02aca99
+		summarizeBy: none
+		sourceColumn: Month
+		sortByColumn: MonthNo
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonth
+		dataType: string
+		lineageTag: 22251e2f-c8df-582f-a95f-de4a69c17e4d
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column Week
+		dataType: int64
+		lineageTag: 93faa061-f718-5ae3-8463-2df2b1bf01b7
+		summarizeBy: none
+		sourceColumn: Week
+
+		annotation SummarizationSetBy = Automatic
+
+	column Weekday
+		dataType: string
+		lineageTag: b591f857-3539-58e2-8b5a-17dc0d1abb99
+		summarizeBy: none
+		sourceColumn: Weekday
+		sortByColumn: WeekdayNo
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsWeekend
+		dataType: boolean
+		lineageTag: 9c09618f-8254-5b7a-a8b8-8d1488174516
+		summarizeBy: none
+		sourceColumn: IsWeekend
+
+		annotation SummarizationSetBy = Automatic
+
+	column WorkingDay
+		dataType: boolean
+		lineageTag: 6ee0b060-2526-5043-8e17-056a35ad92e6
+		summarizeBy: none
+		sourceColumn: WorkingDay
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsHoliday
+		dataType: boolean
+		lineageTag: 921d2e51-3cf0-566e-bbfa-f035b539d236
+		summarizeBy: none
+		sourceColumn: IsHoliday
+
+		annotation SummarizationSetBy = Automatic
+
+	column WeekdayNo
+		dataType: int64
+		isHidden
+		lineageTag: b18291b3-0b60-589d-a9b7-ac2bdc7e95a0
+		summarizeBy: none
+		sourceColumn: WeekdayNo
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Calendar = m
+		mode: import
+		source =
+				let
+					Source = Csv.Document(Binary.Decompress(Binary.FromText(Text.Combine({
+							"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"
+						}), BinaryEncoding.Base64), Compression.Deflate), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+					#"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					#"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers", {{"Date", type date},{"Year", Int64.Type},{"MonthNo", Int64.Type},{"Month", type text},{"YearMonth", type text},{"Week", Int64.Type},{"Weekday", type text},{"IsWeekend", type logical},{"WorkingDay", type logical},{"IsHoliday", type logical}}, "en-US"),
+					#"Added WeekdayNo" = Table.AddColumn(#"Changed Type","WeekdayNo", each Date.DayOfWeek([Date], Day.Monday) + 1, Int64.Type)
+				in
+					#"Added WeekdayNo"
+
+	annotation PBI_ResultType = Table
+

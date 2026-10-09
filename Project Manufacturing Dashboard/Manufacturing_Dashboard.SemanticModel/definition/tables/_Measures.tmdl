@@ -1,0 +1,332 @@
+table _Measures
+	lineageTag: 51ee16f5-c6f7-5c8d-b989-435ca890349a
+
+	measure 'Actual Units' = SUM(Fact_Production[ActualUnits])
+		formatString: #,0
+		displayFolder: 1 Production
+		lineageTag: ea98c175-e43b-5785-a984-5d6a8bfa750a
+
+	measure 'Target Units' = SUM(Fact_Production[TargetUnits])
+		formatString: #,0
+		displayFolder: 1 Production
+		lineageTag: 01463db7-edcd-562d-88e9-e956e1b20645
+
+	measure 'Attainment %' = DIVIDE([Actual Units], [Target Units])
+		formatString: 0.0%
+		displayFolder: 1 Production
+		lineageTag: d79bdfc9-8d3f-5e11-8074-df6e0272a0cf
+
+	measure 'Variance Units' = [Actual Units] - [Target Units]
+		formatString: +#,0;-#,0;0
+		displayFolder: 1 Production
+		lineageTag: 184b5855-c536-597c-9d7a-f617ae73ab30
+
+	measure 'Attainment Status' =
+			VAR a = [Attainment %]
+			RETURN
+				SWITCH(TRUE(),
+					ISBLANK(a), BLANK(),
+					a >= 1, "On / above target",
+					a >= 0.97, "Slightly below",
+					"Below target")
+		displayFolder: 1 Production
+		lineageTag: e354ed6b-24a1-5db4-a82e-02e912c6b079
+
+	measure 'Shortfall Units' = SUMX(Fact_Production, MAX(Fact_Production[TargetUnits] - Fact_Production[ActualUnits], 0))
+		formatString: #,0
+		displayFolder: 1 Production
+		lineageTag: cc2bf35d-c671-5e83-87f7-9c5507e5ac4c
+
+	measure 'Runs Below Target' = COUNTROWS(FILTER(Fact_Production, Fact_Production[ActualUnits] < Fact_Production[TargetUnits]))
+		formatString: #,0
+		displayFolder: 1 Production
+		lineageTag: 513f96ee-f1b4-54d0-b7cf-8d569e8608d4
+
+	measure 'Runs Below Target %' = DIVIDE([Runs Below Target], COUNTROWS(Fact_Production))
+		formatString: 0.0%
+		displayFolder: 1 Production
+		lineageTag: ae2ced70-c671-5d96-a429-6172a6de8a77
+
+	measure 'Good Units' = [Actual Units] - [Scrap Units]
+		formatString: #,0
+		displayFolder: 1 Production
+		lineageTag: dd9d2bce-b142-5498-8be8-8e79799a61f5
+
+	measure 'Worst Line (Shortfall)' = MAXX(TOPN(1, ALLSELECTED(Dim_Line[LineName]), [Shortfall Units], DESC), Dim_Line[LineName])
+		displayFolder: 1 Production
+		lineageTag: 17335c4b-dc99-5fae-9144-13b75905a0f6
+
+	measure 'Worst Machine (Shortfall)' = MAXX(TOPN(1, ALLSELECTED(Dim_Machine[MachineName]), [Shortfall Units], DESC), Dim_Machine[MachineName])
+		displayFolder: 1 Production
+		lineageTag: 7f1d607c-792e-5bbf-8198-60c87fdc6700
+
+	measure 'Worst Shift (Shortfall)' = MAXX(TOPN(1, ALLSELECTED(Dim_Shift[ShiftName]), [Shortfall Units], DESC), Dim_Shift[ShiftName])
+		displayFolder: 1 Production
+		lineageTag: 0e34725a-1fed-5116-bb6b-b668fe0b78c5
+
+	measure 'Selected Machine' = SELECTEDVALUE(Dim_Machine[MachineName], "All machines")
+		displayFolder: 1 Production
+		lineageTag: a7842da4-4e8d-5042-97ad-1402b3112bb7
+
+	measure 'Actual Units PM' = CALCULATE([Actual Units], DATEADD(Dim_Calendar[Date], -1, MONTH))
+		formatString: #,0
+		displayFolder: 2 Time Intelligence
+		lineageTag: 0787e790-9d63-51f0-a724-e6ec614115e9
+
+	measure 'Actual Units MoM %' = DIVIDE([Actual Units] - [Actual Units PM], [Actual Units PM])
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 2 Time Intelligence
+		lineageTag: 06244424-f999-5133-90b5-b6a5aed561f4
+
+	measure 'Attainment % PM' = CALCULATE([Attainment %], DATEADD(Dim_Calendar[Date], -1, MONTH))
+		formatString: 0.0%
+		displayFolder: 2 Time Intelligence
+		lineageTag: 8410f636-208d-5e5d-a298-6489e0008f16
+
+	measure 'Attainment MoM (pp)' = [Attainment %] - [Attainment % PM]
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 2 Time Intelligence
+		lineageTag: f5222bb5-525d-5833-ace2-ad4402607fb6
+
+	measure 'Actual Units YTD' = TOTALYTD([Actual Units], Dim_Calendar[Date])
+		formatString: #,0
+		displayFolder: 2 Time Intelligence
+		lineageTag: 76cdc349-8467-57d9-bb1e-b06e9197024a
+
+	measure 'Target Units YTD' = TOTALYTD([Target Units], Dim_Calendar[Date])
+		formatString: #,0
+		displayFolder: 2 Time Intelligence
+		lineageTag: 8c2819c1-ae76-58f6-b5b2-bd950f1f23cb
+
+	measure 'Attainment % YTD' = DIVIDE([Actual Units YTD], [Target Units YTD])
+		formatString: 0.0%
+		displayFolder: 2 Time Intelligence
+		lineageTag: c4d45b76-877c-53c7-b584-72cd946b2940
+
+	measure 'Actual Units Rolling 3M' = CALCULATE([Actual Units], DATESINPERIOD(Dim_Calendar[Date], MAX(Dim_Calendar[Date]), -3, MONTH))
+		formatString: #,0
+		displayFolder: 2 Time Intelligence
+		lineageTag: d71bf39b-eb22-5675-aa34-e590bb4a23c5
+
+	measure 'Attainment % Rolling 3M' =
+			VAR d = DATESINPERIOD(Dim_Calendar[Date], MAX(Dim_Calendar[Date]), -3, MONTH)
+			RETURN DIVIDE(CALCULATE([Actual Units], d), CALCULATE([Target Units], d))
+		formatString: 0.0%
+		displayFolder: 2 Time Intelligence
+		lineageTag: f89b92a1-f39b-54e8-a8f7-9a408909884e
+
+	measure 'Downtime Hours' = SUM(Fact_Downtime[DowntimeHours])
+		formatString: #,0.0
+		displayFolder: 3 Downtime
+		lineageTag: 4f36457c-ce8e-55ee-ba8a-e8b3bb25dabf
+
+	measure 'Downtime Events' = COUNTROWS(Fact_Downtime)
+		formatString: #,0
+		displayFolder: 3 Downtime
+		lineageTag: 8d49a46a-1444-5927-ba16-a894ff8aaa5a
+
+	measure 'Avg Hours per Event' = DIVIDE([Downtime Hours], [Downtime Events])
+		formatString: 0.00
+		displayFolder: 3 Downtime
+		lineageTag: 3923349b-199c-53f2-9a55-2af05583a9c0
+
+	measure 'Unplanned Downtime Hours' = CALCULATE([Downtime Hours], Fact_Downtime[DowntimeType] = "Unplanned")
+		formatString: #,0.0
+		displayFolder: 3 Downtime
+		lineageTag: b596b1d0-502c-5988-a077-cf80bb0408f5
+
+	measure 'Unplanned Share %' = DIVIDE([Unplanned Downtime Hours], [Downtime Hours])
+		formatString: 0.0%
+		displayFolder: 3 Downtime
+		lineageTag: 37330098-06d7-5c58-bef2-34f99ff527d0
+
+	measure 'Downtime Share %' = DIVIDE([Downtime Hours], CALCULATE([Downtime Hours], REMOVEFILTERS(Fact_Downtime[DowntimeReason])))
+		formatString: 0.0%
+		displayFolder: 3 Downtime
+		lineageTag: ca534a10-8bd5-5c9c-81d7-4624ad2f94da
+
+	measure 'Top Downtime Reason' = MAXX(TOPN(1, ALLSELECTED(Fact_Downtime[DowntimeReason]), [Downtime Hours], DESC), Fact_Downtime[DowntimeReason])
+		displayFolder: 3 Downtime
+		lineageTag: 511760dd-4202-54be-a3fb-45825160640b
+
+	measure 'Inspected Units' = SUM(Fact_Quality[InspectedUnits])
+		formatString: #,0
+		displayFolder: 4 Quality
+		lineageTag: 9689da19-7026-562c-8676-04ccb25e95fe
+
+	measure 'Scrap Units' = SUM(Fact_Quality[ScrapUnits])
+		formatString: #,0
+		displayFolder: 4 Quality
+		lineageTag: 894e6922-beae-5b32-90f9-61c58038554c
+
+	measure 'Rework Units' = SUM(Fact_Quality[ReworkUnits])
+		formatString: #,0
+		displayFolder: 4 Quality
+		lineageTag: e984dda2-fd13-5926-b279-2405ec1e16c2
+
+	measure 'Scrap Rate %' = DIVIDE([Scrap Units], [Inspected Units])
+		formatString: 0.00%
+		displayFolder: 4 Quality
+		lineageTag: 3c794ba1-2a87-5edc-a4ec-63e8c73084d6
+
+	measure 'Rework Rate %' = DIVIDE([Rework Units], [Inspected Units])
+		formatString: 0.00%
+		displayFolder: 4 Quality
+		lineageTag: 4f2f8301-68bf-5f6c-a871-51b13eba81ab
+
+	measure 'Target Scrap Rate %' = DIVIDE(SUMX(Fact_Quality, Fact_Quality[InspectedUnits] * RELATED(Dim_Product[TargetScrapRate])), [Inspected Units])
+		formatString: 0.00%
+		displayFolder: 4 Quality
+		lineageTag: 47334aef-b4bf-5f2c-b775-602e62d65f32
+
+	measure 'Scrap vs Target (pp)' = [Scrap Rate %] - [Target Scrap Rate %]
+		formatString: +0.00%;-0.00%;0.00%
+		displayFolder: 4 Quality
+		lineageTag: 7642ce11-3c6b-5d90-934e-ebfcd5def128
+
+	measure 'Excess Scrap Units' = SUMX(Fact_Quality, Fact_Quality[ScrapUnits] - Fact_Quality[InspectedUnits] * RELATED(Dim_Product[TargetScrapRate]))
+		formatString: #,0
+		displayFolder: 4 Quality
+		lineageTag: a21923e5-5e19-5d2b-94ad-3fb59350be6e
+
+	measure 'Scrap Status' =
+			VAR d = [Scrap vs Target (pp)]
+			RETURN IF(ISBLANK(d), BLANK(), IF(d <= 0, "Within target", "Above target"))
+		displayFolder: 4 Quality
+		lineageTag: a226d902-574e-52df-88f4-628b29dfb2a8
+
+	measure 'Lost Revenue NOK (Shortfall)' = SUMX(Fact_Production, MAX(Fact_Production[TargetUnits] - Fact_Production[ActualUnits], 0) * RELATED(Dim_Product[SalesPriceNOK]))
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: e52d254f-e9f6-548c-abae-0771cd209d51
+
+	measure 'Lost Margin NOK' = SUMX(Fact_Production, MAX(Fact_Production[TargetUnits] - Fact_Production[ActualUnits], 0) * RELATED(Dim_Product[UnitMarginNOK]))
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: af239f28-1565-5d08-b40d-5d42981a3086
+
+	measure 'Scrap Cost NOK' = SUMX(Fact_Quality, Fact_Quality[ScrapUnits] * RELATED(Dim_Product[StandardCostNOK]))
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: 79e195f1-cba6-5ab8-8ab8-d4dc6a37ad0e
+
+	measure 'Excess Scrap Cost NOK' = SUMX(Fact_Quality, (Fact_Quality[ScrapUnits] - Fact_Quality[InspectedUnits] * RELATED(Dim_Product[TargetScrapRate])) * RELATED(Dim_Product[StandardCostNOK]))
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: d8833bd4-60da-5bea-90ee-2b0e89b0c1c2
+
+	measure 'Rework Cost NOK' = SUMX(Fact_Quality, Fact_Quality[ReworkUnits] * RELATED(Dim_Product[StandardCostNOK])) * [Rework Cost Factor]
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: 24a263c8-b252-5ba9-867a-002192119620
+
+	measure 'Fixed Cost per Scheduled Hour NOK' = DIVIDE(SUM(Fact_Cost[LabourCostNOK]) + SUM(Fact_Cost[OverheadCostNOK]), COUNTROWS(Fact_Cost) * [Shift Hours])
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: d2d03242-4726-5561-8eda-ea8beb4403b8
+
+	measure 'Downtime Idle Cost NOK' = [Downtime Hours] * [Fixed Cost per Scheduled Hour NOK]
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: 960399c6-2bdc-59be-b6ad-a190a5d8900e
+
+	measure 'Total Estimated Loss NOK' = [Lost Margin NOK] + [Scrap Cost NOK] + [Rework Cost NOK]
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: 79d8059d-e906-5040-bd99-95627cc31473
+
+	measure 'Avoidable Loss NOK' = [Lost Margin NOK] + [Excess Scrap Cost NOK]
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: d7b92498-8819-540f-92bc-52dd54891e4a
+
+	measure 'Target Revenue NOK' = SUMX(Fact_Production, Fact_Production[TargetUnits] * RELATED(Dim_Product[SalesPriceNOK]))
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: 5de14798-5244-55d2-8954-61a9bebac7c6
+
+	measure 'Loss % of Target Revenue' = DIVIDE([Total Estimated Loss NOK], [Target Revenue NOK])
+		formatString: 0.0%
+		displayFolder: 5 NOK Impact
+		lineageTag: 7b459fe4-acad-5281-85e2-6ff278a65c39
+
+	measure 'Total Production Cost NOK' = SUM(Fact_Cost[TotalCostNOK])
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: 0cda9d02-1628-5e7f-8e59-786ef4d93f6f
+
+	measure 'Cost per Unit NOK' = DIVIDE([Total Production Cost NOK], [Actual Units])
+		formatString: #,0.00
+		displayFolder: 5 NOK Impact
+		lineageTag: 8a5d2617-e4f4-56f1-aafe-a0870dbcb1dd
+
+	measure 'Loss per Month NOK' = DIVIDE([Total Estimated Loss NOK], DISTINCTCOUNT(Dim_Calendar[YearMonth]))
+		formatString: #,0
+		displayFolder: 5 NOK Impact
+		lineageTag: 51640263-f0d2-5fba-acc1-97f9cfd5ef37
+
+	measure 'Rework Cost Factor' = 0.25
+		formatString: 0%
+		displayFolder: 6 Assumptions
+		lineageTag: f0d7f2bb-b74b-5a49-8537-58bce9ed9c33
+
+	measure 'Shift Hours' = 8
+		formatString: 0
+		displayFolder: 6 Assumptions
+		lineageTag: 4e8d53a3-78af-5d09-8211-45202216090d
+
+	measure 'Headline Overview' = "Plant output is " & FORMAT([Attainment %], "0.0%") & " of target (" & FORMAT([Variance Units], "+#,0;-#,0;0") & " units). Largest gap: " & [Worst Line (Shortfall)] & "."
+		displayFolder: 7 Headlines
+		lineageTag: 7c5dcdaa-8886-5b34-8880-afd8e4389992
+
+	measure 'Headline Losses' =
+			VAR wl = [Worst Line (Shortfall)]
+			VAR share = DIVIDE(CALCULATE([Shortfall Units], Dim_Line[LineName] = wl), CALCULATE([Shortfall Units], ALLSELECTED(Dim_Line)))
+			RETURN wl & " accounts for " & FORMAT(share, "0%") & " of shortfall units. Worst machine: " & [Worst Machine (Shortfall)] & "; worst shift: " & [Worst Shift (Shortfall)] & "."
+		displayFolder: 7 Headlines
+		lineageTag: 9ee1cd97-373b-50d0-b15d-80e6e2550b2b
+
+	measure 'Headline Downtime' =
+			VAR r = [Top Downtime Reason]
+			VAR share = DIVIDE(CALCULATE([Downtime Hours], Fact_Downtime[DowntimeReason] = r), [Downtime Hours])
+			RETURN r & " is the largest cause (" & FORMAT(share, "0%") & " of " & FORMAT([Downtime Hours], "#,0") & " downtime hours). " & FORMAT([Unplanned Share %], "0%") & " is unplanned."
+		displayFolder: 7 Headlines
+		lineageTag: e4039e17-01f7-57f9-97c6-0d3cad0684d7
+
+	measure 'Worst Line (Scrap)' = MAXX(TOPN(1, ALLSELECTED(Dim_Line[LineName]), [Scrap Rate %], DESC), Dim_Line[LineName])
+		displayFolder: 4 Quality
+		lineageTag: 9189b7ca-9d03-5bc7-9bef-5fb8ac2a0c88
+
+	measure 'Headline Quality' =
+			VAR wl = [Worst Line (Scrap)]
+			RETURN "Scrap rate is " & FORMAT([Scrap Rate %], "0.00%") & " vs a " & FORMAT([Target Scrap Rate %], "0.00%") & " target. Highest on " & wl & " (" & FORMAT(CALCULATE([Scrap Rate %], Dim_Line[LineName] = wl), "0.0%") & ")."
+		displayFolder: 7 Headlines
+		lineageTag: 77300687-5657-5df8-a0f0-f6f646617241
+
+	measure 'Headline Impact' =
+			VAR a = [Lost Margin NOK]
+			VAR b = [Scrap Cost NOK]
+			VAR c = [Rework Cost NOK]
+			VAR mx = MAX(a, MAX(b, c))
+			VAR driver = IF(mx = a, "lost margin", IF(mx = b, "scrap", "rework"))
+			RETURN "Estimated loss " & FORMAT([Total Estimated Loss NOK] / 1000000, "0.0") & "M NOK (" & FORMAT([Loss % of Target Revenue], "0.0%") & " of target revenue). Largest driver: " & driver & "."
+		displayFolder: 7 Headlines
+		lineageTag: b0248dc8-537d-5235-8900-30234c99c139
+
+	column Dummy
+		dataType: int64
+		isHidden
+		lineageTag: 165b6750-0dbd-5f8c-abb6-b70da6ee88ec
+		summarizeBy: none
+		sourceColumn: Dummy
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table [Dummy = Int64.Type], {{1}})
+				in
+					Source
+
+	annotation PBI_ResultType = Table
+
